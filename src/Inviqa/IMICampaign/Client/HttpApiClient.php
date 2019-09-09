@@ -18,7 +18,8 @@ class HttpApiClient implements ApiClient
     public function sendEvent(string $eventJsonPayload): string
     {
         $response = $this->client->post(self::EVENT_ENDPOINT, [
-            'body' => $eventJsonPayload,
+            'body'       => $eventJsonPayload,
+            'exceptions' => false,
         ]);
 
         return $response->getBody()->getContents();
