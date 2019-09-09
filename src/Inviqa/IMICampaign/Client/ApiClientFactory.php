@@ -14,10 +14,11 @@ class ApiClientFactory
         }
 
         $guzzleClient = new Client([
-            'base_url' => $configuration->getDomain(),
-            'defaults' => [
+            'base_url'   => $configuration->getDomain(),
+            'defaults'   => [
                 'headers' => [
                     'Authorization' => sprintf('Bearer %s', $configuration->getApiToken()),
+                    'Content-Type'  => 'application/json',
                 ],
             ],
         ]);
