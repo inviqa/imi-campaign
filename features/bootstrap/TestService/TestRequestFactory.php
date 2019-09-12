@@ -24,9 +24,18 @@ class TestRequestFactory
         return new Event(
             new EventId($eventId),
             new EventKey($eventKey),
-            new EventParameters(array_map(static function ($value, $key) {
-                return new EventParameter($key, $value);
-            }, $eventParameters, array_keys($eventParameters)))
+            self::buildEventParameters($eventParameters)
         );
+    }
+
+    private static function buildEventParameters(array $eventParameters): EventParameters
+    {
+        $eventParameterObjects = [];
+
+        foreach ($eventParameters as $key => $value) {
+            $eventParameterObjects[] = new EventParameter($key, $value);
+        }
+
+        return new EventParameters($eventParameterObjects);
     }
 }
