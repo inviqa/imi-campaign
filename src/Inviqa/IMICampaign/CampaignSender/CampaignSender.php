@@ -9,6 +9,7 @@ use Inviqa\IMICampaign\Response\ResponseParser;
 class CampaignSender
 {
     private $apiClient;
+    private $eventFactory;
     private $responseParser;
 
     public function __construct(

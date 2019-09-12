@@ -4,6 +4,7 @@ namespace Inviqa\IMICampaign\Client;
 
 use Inviqa\IMICampaign\Configuration;
 use Inviqa\IMICampaign\Request\Event\Event;
+use RuntimeException;
 
 class FakeApiClient implements ApiClient
 {
@@ -39,7 +40,7 @@ class FakeApiClient implements ApiClient
         }
 
         if ($response === null) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'No matching predetermined result found for event ID %s and event key %s',
                 $event->getEventId(),
                 $event->getEventKey()
