@@ -2,7 +2,9 @@
 
 namespace Inviqa\IMICampaign\CampaignSender;
 
+use Exception;
 use Inviqa\IMICampaign\Client\ApiClient;
+use Inviqa\IMICampaign\Exception\IMICampaignException;
 use Inviqa\IMICampaign\Request\EventFactory;
 use Inviqa\IMICampaign\Response\ResponseParser;
 
@@ -24,8 +26,12 @@ class CampaignSender
 
     public function sendEvent(string $eventId, string $eventKey, array $eventParameters)
     {
-        $event = $this->eventFactory->buildFrom($eventId, $eventKey, $eventParameters);
-        $responseBody = $this->apiClient->sendEvent($event);
-        return $this->responseParser->extractEventResultFrom($responseBody);
+        try {
+            $event = $this->eventFactory->buildFrom($eventId, $eventKey, $eventParameters);
+            $responseBody = $this->apiClient->sendEvent($event);
+            return $this->responseParser->extractEventResultFrom($responseBody);
+        } catch (Exception $e) {
+            throw new IMICampaignException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 }
