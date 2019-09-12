@@ -3,6 +3,7 @@
 namespace Inviqa\IMICampaign;
 
 use Inviqa\IMICampaign\CampaignSender\CampaignSenderFactory;
+use Inviqa\IMICampaign\Response\EventResult;
 
 class Application
 {
@@ -13,7 +14,7 @@ class Application
         $this->campaignSender = CampaignSenderFactory::buildFrom($configuration);
     }
 
-    public function sendEvent(string $eventId, string $eventKey, array $eventParameters)
+    public function sendEvent(string $eventId, string $eventKey, array $eventParameters): EventResult
     {
         return $this->campaignSender->sendEvent($eventId, $eventKey, $eventParameters);
     }

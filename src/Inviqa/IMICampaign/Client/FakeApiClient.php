@@ -52,7 +52,7 @@ class FakeApiClient implements ApiClient
         return $response;
     }
 
-    private function triggerAfterSendCallbacks(array $extraConfig, Event $event)
+    private function triggerAfterSendCallbacks(array $extraConfig, Event $event): void
     {
         foreach ($extraConfig['afterSendCallbacks'] as $afterSendCallback) {
             if (is_callable($afterSendCallback)) {

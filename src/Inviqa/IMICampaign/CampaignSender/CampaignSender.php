@@ -6,6 +6,7 @@ use Exception;
 use Inviqa\IMICampaign\Client\ApiClient;
 use Inviqa\IMICampaign\Exception\IMICampaignException;
 use Inviqa\IMICampaign\Request\EventFactory;
+use Inviqa\IMICampaign\Response\EventResult;
 use Inviqa\IMICampaign\Response\ResponseParser;
 
 class CampaignSender
@@ -24,7 +25,7 @@ class CampaignSender
         $this->responseParser = $responseParser;
     }
 
-    public function sendEvent(string $eventId, string $eventKey, array $eventParameters)
+    public function sendEvent(string $eventId, string $eventKey, array $eventParameters): EventResult
     {
         try {
             $event = $this->eventFactory->buildFrom($eventId, $eventKey, $eventParameters);
