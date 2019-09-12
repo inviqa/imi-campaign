@@ -3,6 +3,7 @@
 namespace spec\Inviqa\IMICampaign\Client;
 
 use Inviqa\IMICampaign\Configuration;
+use Inviqa\IMICampaign\Request\Event\Event;
 use PhpSpec\ObjectBehavior;
 use TestService\TestRequestFactory;
 use TestService\TestResponseFactory;
@@ -21,7 +22,7 @@ class FakeApiClientSpec extends ObjectBehavior
         $eventKey = 'user@example.com';
         $transactionId = 'evt_123';
 
-        $eventPayload = TestRequestFactory::buildEventJsonPayload($eventId, $eventKey);
+        $eventValueObject = TestRequestFactory::buildEventValueObject($eventId, $eventKey);
         $responseJson = TestResponseFactory::buildSuccessResponseJson($transactionId);
 
         $configuration->getExtraConfig()->willReturn([
@@ -34,7 +35,7 @@ class FakeApiClientSpec extends ObjectBehavior
             'afterSendCallbacks' => [],
         ]);
 
-        $this->sendEvent($eventPayload)->shouldBe($responseJson);
+        $this->sendEvent($eventValueObject)->shouldBe($responseJson);
     }
 
     function it_makes_use_of_extra_configuration_to_return_a_failure_predetermined_result(Configuration $configuration)
@@ -44,7 +45,7 @@ class FakeApiClientSpec extends ObjectBehavior
         $apiResponseCode = 1001;
         $errorDescription = 'Invalid input JSON';
 
-        $eventPayload = TestRequestFactory::buildEventJsonPayload($eventId, $eventKey);
+        $eventValueObject = TestRequestFactory::buildEventValueObject($eventId, $eventKey);
         $responseJson = TestResponseFactory::buildFailureResponseJson($apiResponseCode, $errorDescription);
 
         $configuration->getExtraConfig()->willReturn([
@@ -60,7 +61,7 @@ class FakeApiClientSpec extends ObjectBehavior
             'afterSendCallbacks' => [],
         ]);
 
-        $this->sendEvent($eventPayload)->shouldBe($responseJson);
+        $this->sendEvent($eventValueObject)->shouldBe($responseJson);
     }
 
     function it_calls_after_send_callbacks_before_returning(Configuration $configuration)
@@ -69,10 +70,10 @@ class FakeApiClientSpec extends ObjectBehavior
         $eventKey = 'user@example.com';
         $transactionId = 'evt_123';
 
-        $eventPayload = TestRequestFactory::buildEventJsonPayload($eventId, $eventKey);
+        $eventValueObject = TestRequestFactory::buildEventValueObject($eventId, $eventKey);
 
-        $afterSendCallbackClosure = static function ($calledJsonPayload) use ($eventPayload, &$callBackCalled) {
-            Assert::eq($calledJsonPayload, $eventPayload);
+        $afterSendCallbackClosure = static function (Event $event) use ($eventValueObject, &$callBackCalled) {
+            Assert::eq($event, $eventValueObject);
             $callBackCalled = true;
         };
 
@@ -88,7 +89,7 @@ class FakeApiClientSpec extends ObjectBehavior
             ],
         ]);
 
-        $this->sendEvent($eventPayload);
+        $this->sendEvent($eventValueObject);
 
         Assert::true($callBackCalled);
     }

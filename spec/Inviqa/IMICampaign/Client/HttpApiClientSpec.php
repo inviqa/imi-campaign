@@ -22,15 +22,18 @@ class HttpApiClientSpec extends ObjectBehavior
         Response $response,
         StreamInterface $body
     ) {
-        $eventPayload = TestRequestFactory::buildEventJsonPayload();
+        $event = TestRequestFactory::buildEventValueObject();
         $eventResponse = TestResponseFactory::buildSuccessResponseJson();
 
-        $requestOptions = ['body' => $eventPayload];
+        $requestOptions = [
+            'body'       => $event->toJson(),
+            'exceptions' => false,
+        ];
 
         $body->getContents()->willReturn($eventResponse);
         $response->getBody()->willReturn($body);
         $client->post(HttpApiClient::EVENT_ENDPOINT, $requestOptions)->willReturn($response);
 
-        $this->sendEvent($eventPayload)->shouldBe($eventResponse);
+        $this->sendEvent($event)->shouldBe($eventResponse);
     }
 }

@@ -3,7 +3,7 @@
 namespace Inviqa\IMICampaign\Client;
 
 use Inviqa\IMICampaign\Configuration;
-use function call_user_func_array;
+use Inviqa\IMICampaign\Request\Event\Event;
 
 class FakeApiClient implements ApiClient
 {
@@ -17,13 +17,11 @@ class FakeApiClient implements ApiClient
         $this->configuration = $configuration;
     }
 
-    public function sendEvent(string $eventJsonPayload): string
+    public function sendEvent(Event $event): string
     {
         $extraConfig = $this->configuration->getExtraConfig();
 
-        $decodedPayload = json_decode($eventJsonPayload, true);
-
-        $resultChecksum = md5($decodedPayload['event-id'] . $decodedPayload['event-key']);
+        $resultChecksum = md5($event->getEventId() . $event->getEventKey());
 
         $response = null;
 
@@ -43,21 +41,21 @@ class FakeApiClient implements ApiClient
         if ($response === null) {
             throw new \RuntimeException(sprintf(
                 'No matching predetermined result found for event ID %s and event key %s',
-                $decodedPayload['event-id'],
-                $decodedPayload['event-key']
+                $event->getEventId(),
+                $event->getEventKey()
             ));
         }
 
-        $this->triggerAfterSendCallbacks($extraConfig, $eventJsonPayload);
+        $this->triggerAfterSendCallbacks($extraConfig, $event);
 
         return $response;
     }
 
-    private function triggerAfterSendCallbacks(array $extraConfig, string $eventJsonPayload)
+    private function triggerAfterSendCallbacks(array $extraConfig, Event $event)
     {
         foreach ($extraConfig['afterSendCallbacks'] as $afterSendCallback) {
             if (is_callable($afterSendCallback)) {
-                $afterSendCallback($eventJsonPayload);
+                $afterSendCallback($event);
             }
         }
     }

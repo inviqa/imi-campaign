@@ -21,6 +21,11 @@ class EventId implements JsonSerializable
         $this->eventId = $eventId;
     }
 
+    public function __toString()
+    {
+        return $this->eventId;
+    }
+
     public function jsonSerialize()
     {
         return $this->eventId;

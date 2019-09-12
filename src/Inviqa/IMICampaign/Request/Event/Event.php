@@ -3,6 +3,7 @@
 namespace Inviqa\IMICampaign\Request\Event;
 
 use JsonSerializable;
+use function json_encode;
 
 class Event implements JsonSerializable
 {
@@ -15,6 +16,21 @@ class Event implements JsonSerializable
         $this->eventId = $eventId;
         $this->eventKey = $eventKey;
         $this->eventParameters = $eventParameters;
+    }
+
+    public function getEventId(): EventId
+    {
+        return $this->eventId;
+    }
+
+    public function getEventKey(): EventKey
+    {
+        return $this->eventKey;
+    }
+
+    public function toJson(): string
+    {
+        return json_encode($this);
     }
 
     public function jsonSerialize()

@@ -21,6 +21,11 @@ class EventKey implements JsonSerializable
         $this->eventKey = $eventKey;
     }
 
+    public function __toString()
+    {
+        return $this->eventKey;
+    }
+
     public function jsonSerialize()
     {
         return $this->eventKey;

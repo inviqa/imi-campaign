@@ -3,7 +3,7 @@
 namespace spec\Inviqa\IMICampaign\CampaignSender;
 
 use Inviqa\IMICampaign\Client\ApiClient;
-use Inviqa\IMICampaign\Request\EventPayloadBuilder;
+use Inviqa\IMICampaign\Request\EventFactory;
 use Inviqa\IMICampaign\Response\EventResult;
 use Inviqa\IMICampaign\Response\ResponseParser;
 use PhpSpec\ObjectBehavior;
@@ -14,15 +14,15 @@ class CampaignSenderSpec extends ObjectBehavior
 {
     function let(
         ApiClient $apiClient,
-        EventPayloadBuilder $eventPayloadBuilder,
+        EventFactory $eventFactory,
         ResponseParser $responseParser
     ) {
-        $this->beConstructedWith($apiClient, $eventPayloadBuilder, $responseParser);
+        $this->beConstructedWith($apiClient, $eventFactory, $responseParser);
     }
 
     function it_sends_an_event_api_request_and_returns_an_event_result(
         ApiClient $apiClient,
-        EventPayloadBuilder $eventPayloadBuilder,
+        EventFactory $eventFactory,
         ResponseParser $responseParser
     ) {
         $eventId = 'evt_123';
@@ -31,14 +31,14 @@ class CampaignSenderSpec extends ObjectBehavior
             'first_name' => 'John',
         ];
 
-        $jsonPayload = TestRequestFactory::buildEventJsonPayload($eventId, $eventKey, $eventParameters);
+        $eventValueObject = TestRequestFactory::buildEventValueObject($eventId, $eventKey, $eventParameters);
 
         $responseJson = TestResponseFactory::buildSuccessResponseJson('event_123');
 
         $eventResult = EventResult::successFromTransactionId('event_123');
 
-        $eventPayloadBuilder->buildFrom($eventId, $eventKey, $eventParameters)->willReturn($jsonPayload);
-        $apiClient->sendEvent($jsonPayload)->willReturn($responseJson);
+        $eventFactory->buildFrom($eventId, $eventKey, $eventParameters)->willReturn($eventValueObject);
+        $apiClient->sendEvent($eventValueObject)->willReturn($responseJson);
         $responseParser->extractEventResultFrom($responseJson)->willReturn($eventResult);
 
         $this->sendEvent($eventId, $eventKey, $eventParameters)->shouldBe($eventResult);

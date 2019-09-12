@@ -3,6 +3,7 @@
 namespace Inviqa\IMICampaign\Client;
 
 use GuzzleHttp\Client;
+use Inviqa\IMICampaign\Request\Event\Event;
 
 class HttpApiClient implements ApiClient
 {
@@ -15,10 +16,10 @@ class HttpApiClient implements ApiClient
         $this->client = $client;
     }
 
-    public function sendEvent(string $eventJsonPayload): string
+    public function sendEvent(Event $event): string
     {
         $response = $this->client->post(self::EVENT_ENDPOINT, [
-            'body'       => $eventJsonPayload,
+            'body'       => $event->toJson(),
             'exceptions' => false,
         ]);
 
