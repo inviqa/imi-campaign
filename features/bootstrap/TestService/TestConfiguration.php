@@ -38,19 +38,16 @@ class TestConfiguration implements Configuration
         return $this->extraConfig;
     }
 
-    public function addSuccessEvent(string $eventId, string $eventKey, string $transactionId): TestConfiguration
+    public function addSuccessEvent(string $eventId, string $eventKey, string $transactionId)
     {
         $this->extraConfig['testResults']['success'][md5($eventId . $eventKey)] = $transactionId;
-        return $this;
     }
 
-    public function addFailureEvent(string $eventId, string $eventKey, string $apiResponseCode, string $errorDescription): TestConfiguration
+    public function addFailureEvent(string $eventId, string $eventKey, string $apiResponseCode, string $errorDescription)
     {
         $this->extraConfig['testResults']['failure'][md5($eventId . $eventKey)] = [
             'code'        => $apiResponseCode,
             'description' => $errorDescription,
         ];
-
-        return $this;
     }
 }
