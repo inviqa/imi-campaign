@@ -3,6 +3,7 @@
 namespace spec\Inviqa\IMICampaign\Client;
 
 use Inviqa\IMICampaign\Configuration;
+use Inviqa\IMICampaign\Exception\IMICampaignException;
 use Inviqa\IMICampaign\Request\Event\Event;
 use PhpSpec\ObjectBehavior;
 use TestService\TestRequestFactory;
@@ -27,10 +28,11 @@ class FakeApiClientSpec extends ObjectBehavior
 
         $configuration->getExtraConfig()->willReturn([
             'testResults'        => [
-                'success' => [
+                'success'   => [
                     md5($eventId . $eventKey) => $transactionId,
                 ],
-                'failure' => [],
+                'failure'   => [],
+                'exception' => [],
             ],
             'afterSendCallbacks' => [],
         ]);
@@ -50,18 +52,46 @@ class FakeApiClientSpec extends ObjectBehavior
 
         $configuration->getExtraConfig()->willReturn([
             'testResults'        => [
-                'success' => [],
-                'failure' => [
+                'success'   => [],
+                'failure'   => [
                     md5($eventId . $eventKey) => [
                         'code'        => $apiResponseCode,
                         'description' => $errorDescription,
+                    ],
+                ],
+                'exception' => [],
+            ],
+            'afterSendCallbacks' => [],
+        ]);
+
+        $this->sendEvent($eventValueObject)->shouldBe($responseJson);
+    }
+
+    function it_makes_use_of_extra_configuration_to_throw_an_exception(Configuration $configuration)
+    {
+        $eventId = 'evt_123';
+        $eventKey = 'user@example.com';
+        $exceptionMessage = 'Exceptional!';
+
+        $eventValueObject = TestRequestFactory::buildEventValueObject($eventId, $eventKey);
+        $expectedException = new IMICampaignException($exceptionMessage);
+
+        $configuration->getExtraConfig()->willReturn([
+            'testResults'        => [
+                'success'   => [],
+                'failure'   => [],
+                'exception' => [
+                    md5($eventId . $eventKey) => [
+                        'message' => $exceptionMessage,
                     ],
                 ],
             ],
             'afterSendCallbacks' => [],
         ]);
 
-        $this->sendEvent($eventValueObject)->shouldBe($responseJson);
+        $this
+            ->shouldThrow($expectedException)
+            ->during('sendEvent', [$eventValueObject]);
     }
 
     function it_calls_after_send_callbacks_before_returning(Configuration $configuration)
@@ -79,10 +109,11 @@ class FakeApiClientSpec extends ObjectBehavior
 
         $configuration->getExtraConfig()->willReturn([
             'testResults'        => [
-                'success' => [
+                'success'   => [
                     md5($eventId . $eventKey) => $transactionId,
                 ],
-                'failure' => [],
+                'failure'   => [],
+                'exception' => [],
             ],
             'afterSendCallbacks' => [
                 $afterSendCallbackClosure,

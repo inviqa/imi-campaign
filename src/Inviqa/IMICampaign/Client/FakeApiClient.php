@@ -3,6 +3,7 @@
 namespace Inviqa\IMICampaign\Client;
 
 use Inviqa\IMICampaign\Configuration;
+use Inviqa\IMICampaign\Exception\IMICampaignException;
 use Inviqa\IMICampaign\Request\Event\Event;
 use RuntimeException;
 
@@ -37,6 +38,10 @@ class FakeApiClient implements ApiClient
                 'code'        => $extraConfig['testResults']['failure'][$resultChecksum]['code'],
                 'description' => $extraConfig['testResults']['failure'][$resultChecksum]['description'],
             ]);
+        }
+
+        if (array_key_exists($resultChecksum, $extraConfig['testResults']['exception'])) {
+            throw new IMICampaignException($extraConfig['testResults']['exception'][$resultChecksum]['message']);
         }
 
         if ($response === null) {

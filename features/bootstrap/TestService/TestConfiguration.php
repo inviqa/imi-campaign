@@ -12,8 +12,9 @@ class TestConfiguration implements Configuration
 
     private $extraConfig = [
         'testResults'        => [
-            'success' => [],
-            'failure' => [],
+            'success'   => [],
+            'failure'   => [],
+            'exception' => [],
         ],
         'afterSendCallbacks' => [],
     ];
@@ -48,6 +49,13 @@ class TestConfiguration implements Configuration
         $this->extraConfig['testResults']['failure'][md5($eventId . $eventKey)] = [
             'code'        => $apiResponseCode,
             'description' => $errorDescription,
+        ];
+    }
+
+    public function addException(string $eventId, string $eventKey, string $exceptionMessage)
+    {
+        $this->extraConfig['testResults']['exception'][md5($eventId . $eventKey)] = [
+            'message' => $exceptionMessage,
         ];
     }
 }

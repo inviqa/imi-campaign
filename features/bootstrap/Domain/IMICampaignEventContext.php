@@ -5,6 +5,7 @@ namespace Domain;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Inviqa\IMICampaign\Application;
+use Inviqa\IMICampaign\Exception\IMICampaignException;
 use Inviqa\IMICampaign\Response\EventResult;
 use TestService\TestConfiguration;
 use Webmozart\Assert\Assert;
@@ -17,6 +18,11 @@ class IMICampaignEventContext implements Context
      * @var EventResult|null
      */
     private $eventResult;
+
+    /**
+     * @var IMICampaignException|null
+     */
+    private $imiCampaignException;
     private $configuration;
     private $application;
 
@@ -43,11 +49,23 @@ class IMICampaignEventContext implements Context
     }
 
     /**
+     * @Given the event request for event ID :arg1 to event key :arg2 should throw an exception with message :arg3
+     */
+    public function theEventRequestForEventIdToEventKeyShouldThrowAnExceptionWithMessage(string $eventId, string $eventKey, string $exceptionMessage)
+    {
+        $this->configuration->addException($eventId, $eventKey, $exceptionMessage);
+    }
+
+    /**
      * @When an event request is made using event ID :arg1, event key :arg2 and the following event parameters:
      */
     public function anEventRequestIsMadeUsingEventIdEventKeyAndTheFollowingEventParameters(string $eventId, string $eventKey, TableNode $eventParameters)
     {
-        $this->eventResult = $this->application->sendEvent($eventId, $eventKey, $eventParameters->getRowsHash());
+        try {
+            $this->eventResult = $this->application->sendEvent($eventId, $eventKey, $eventParameters->getRowsHash());
+        } catch (IMICampaignException $e) {
+            $this->imiCampaignException = $e;
+        }
     }
 
     /**
@@ -66,5 +84,14 @@ class IMICampaignEventContext implements Context
     {
         Assert::eq($this->eventResult->getApiResponseCode(), $apiResponseCode);
         Assert::eq($this->eventResult->getDescription(), $description);
+    }
+
+    /**
+     * @Then an IMI Campaign exception should have been thrown with the message :arg1
+     */
+    public function anIMICampaignExceptionShouldHaveBeenThrown(string $exceptionMessage)
+    {
+        Assert::isInstanceOf($this->imiCampaignException, IMICampaignException::class);
+        Assert::eq($this->imiCampaignException->getMessage(), $exceptionMessage);
     }
 }
