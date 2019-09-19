@@ -26,11 +26,23 @@ class ResponseParserSpec extends ObjectBehavior
         $this->extractEventResultFrom($responseBody)->shouldBeLike($eventResult);
     }
 
-    function it_throws_an_exception_if_unable_to_identify_the_response()
+    function it_throws_an_exception_if_unable_to_identify_the_response_when_it_is_an_array()
     {
+        $responseBody = '{"bad-response": "yes"}';
+
         $this
-            ->shouldThrow(new UnknownResponseException(ResponseParser::UNKNOWN_RESPONSE_MESSAGE))
-            ->duringExtractEventResultFrom('{"bad-response": "yes"}')
+            ->shouldThrow(UnknownResponseException::withResponseBody($responseBody))
+            ->duringExtractEventResultFrom($responseBody)
+        ;
+    }
+
+    function it_throws_an_exception_if_unable_to_identify_the_response_when_it_cannot_be_json_decoded()
+    {
+        $responseBody = 'Bad Response!';
+
+        $this
+            ->shouldThrow(UnknownResponseException::withResponseBody($responseBody))
+            ->duringExtractEventResultFrom($responseBody)
         ;
     }
 }
